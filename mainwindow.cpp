@@ -26,6 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->widget->addGraph();
     ui->widget->addGraph();
     ui->widget->addGraph();
+    ui->widget->addGraph();
+    ui->widget->addGraph();
+    ui->widget->addGraph();
+    ui->widget->addGraph();
+    ui->widget->addGraph();
+    ui->widget->addGraph();
     ui->widget->xAxis->setLabel("x");
     ui->widget->yAxis->setLabel("y");
     ui->widget->setInteraction(QCP::iRangeDrag,true);
@@ -36,8 +42,6 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
 void MainWindow::on_pushButton_clicked()
 {
     int x_beg,x_end,y_beg,y_end;
@@ -61,8 +65,6 @@ void MainWindow::on_pushButton_clicked()
     }
     if(x_end-x_beg == 0)
     {
-        ui->label_17->setNum(x_beg);
-        ui->label_19->setNum(y_beg);
         ui->widget->graph(0)->addData(x_beg,y_beg);
         ui->widget->replot();
         ui->widget->graph(0)->addData(x_end,y_end);
@@ -77,7 +79,6 @@ void MainWindow::on_pushButton_clicked()
     ui->widget->graph(0)->addData(x_beg,y_beg);
     ui->widget->replot();
     QThread::sleep(delay);
-    double v;
     while(x_beg<x_end)
     {
          x_beg++;
@@ -110,6 +111,8 @@ void MainWindow::on_pushButton_2_clicked()
     str = ui->lineEdit->text();
     delay = str.toDouble();
 
+
+
     if(abs(y_end-y_beg) > abs(x_end-x_beg))
     {
        std::swap(x_beg,y_beg);
@@ -120,85 +123,33 @@ void MainWindow::on_pushButton_2_clicked()
         std::swap(x_beg,x_end);
         std::swap(y_beg,y_end);
     }
-    int x,y,Dx,Dy,e,j;
-    Dx = x_end - x_beg;
-    Dy = abs(y_end- y_beg);
-    e = Dx/2;
-    j = (y_beg < y_end) ? 1 : -1;
-    x = x_beg;
-    y = y_beg;
-    for(x = x_beg;x<=x_end;x++)
+    int Dx=x_end-x_beg;
+    int Dy=y_end-y_beg;
+    int yi=1;
+    if (Dy<0)
     {
-        if(abs(y_end-y_beg) > abs(x_end-x_beg))
-        {
-        ui->label_17->setNum(y);
-        ui->label_19->setNum(x);
-        }
-        else
-        {
+        yi=-1;
+        Dy=-Dy;
+    }
+    int D=2*Dy-Dx;
+    int y=y_beg;
+    for(int x=x_beg;x<x_end;x++)
+    {
         ui->label_17->setNum(x);
         ui->label_19->setNum(y);
-        }
-        ui->widget->graph(3)->addData(x,y);
+        ui->widget->graph(1)->addData(x,y);
         ui->widget->replot();
         QThread::sleep(delay);
-        e -= Dy;
-       if(e<0){
-           y+= j;
-           e+=Dx;
-       }
+        if(D>0)
+        {
+            y+=yi;
+            D+=2*(Dy-Dx);
+        }
+        else
+            D+=2*Dy;
     }
     ui->label_17->setText("");
     ui->label_19->setText("");
-
-    /*int x_beg,x_end,y_beg,y_end;
-    double delay;
-    QString str;
-    str = ui->lineEdit_8->text();
-    x_beg = str.toInt();
-    str = ui->lineEdit_7->text();
-    x_end = str.toInt();
-    str = ui->lineEdit_9->text();
-    y_beg = str.toInt();
-    str = ui->lineEdit_6->text();
-    y_end = str.toInt();
-    str = ui->lineEdit->text();
-    delay = str.toDouble();
-    int x,y,Ds,Dd,e;
-    if (x_beg > x_end)
-    {
-        std::swap(x_beg,x_end);
-        std::swap(y_beg,y_end);
-    }
-    x=x_beg;
-    y=y_beg;
-    e=2*y_end-x_end;
-    Ds = 2*y_end;
-    Dd = 2*y_end-2*x_end;
-    ui->label_17->setNum(x_beg);
-    ui->label_19->setNum(y_beg);
-    ui->widget->graph(1)->addData(x,y);
-    ui->widget->replot();
-    QThread::sleep(delay);
-    while(x<x_end)
-    {
-       if(e>0){
-           x++;
-           y++;
-           e+=Dd;
-       }
-       else{
-           x++;
-           e+=Ds;
-       }
-       ui->label_17->setNum(x_beg);
-       ui->label_19->setNum(y_beg);
-       ui->widget->graph(1)->addData(x,y);
-       ui->widget->replot();
-       QThread::sleep(delay);
-    }
-    ui->label_17->setText("");
-    ui->label_19->setText("");*/
 
 }
 
@@ -217,107 +168,73 @@ void MainWindow::on_pushButton_3_clicked()
     y_end = str.toInt();
     str = ui->lineEdit->text();
     delay = str.toDouble();
-    double x,y,Ds,e;
-    QVector<double> X,Y;
-    x=x_beg;
-    y=y_beg;
-    e=1.0*y_end/x_end;
-    Ds= 1.0*y_end/x_end;
-    ui->widget->graph(2)->addData(x,y);
-    ui->widget->replot();
-    QThread::sleep(delay);
-    while(x<x_end)
-    {
-       if(e>0.5){
-           x++;
-           y++;
-           e+=Ds - 1;
-       }
-       else{
-           x++;
-           e+=Ds;
-       }
-       ui->widget->graph(2)->addData(x,y);
-       ui->widget->replot();
-       QThread::sleep(delay);
-    }
+    int dx = x_end - x_beg;
+    int dy = y_end - y_beg;
+    int step;
+    if (abs(dx) > abs(dy))
+        step = abs(dx);
+    else
+        step = abs(dy);
+     float x_incr = (float)dx / step;
+     float y_incr = (float)dy / step;
+     float x = x_beg;
+     float y = y_beg;
+     for (int i = 0; i <= step; i++) {
+         ui->label_17->setNum(x);
+         ui->label_19->setNum(y);
+         ui->widget->graph(2)->addData(x,y);
+     //  ui->widget->graph(2)->addData(round(x),(y)); Points(3,3);(5,20)
+         ui->widget->replot();
+         QThread::sleep(delay);
+         x += x_incr;
+         y += y_incr;
+     }
+     ui->label_17->setText("");
+     ui->label_19->setText("");
 }
 
 void MainWindow::on_pushButton_4_clicked()
 {
-    int x,rad;
-    double delay;
+    int xm=0,ym=0,r=3,delay;
     QString str;
     str = ui->lineEdit_10->text();
-    x = str.toInt();
+    xm = str.toInt();
+    str = ui->lineEdit_12->text();
+    ym = str.toInt();
     str = ui->lineEdit_11->text();
-    rad = str.toInt();
+    r = str.toInt();
     str = ui->lineEdit->text();
-    delay = str.toDouble();
-    QVector<double> q,w;
-    double X=0,Y=rad,e=3-2*rad;
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->addGraph();
-    ui->widget->graph(1)->addData(Y,-X);
-    ui->widget->replot();
-    ui->widget->graph(5)->addData(X,-Y);
-    ui->widget->replot();
-    ui->widget->graph(6)->addData(-Y,-X);
-    ui->widget->replot();
-    ui->widget->graph(7)->addData(-X,-Y);
-    ui->widget->replot();
-    ui->widget->graph(8)->addData(-Y,X);
-    ui->widget->replot();
-    ui->widget->graph(9)->addData(-X,Y);
-    ui->widget->replot();
-    ui->widget->graph(10)->addData(X,Y);
-    ui->widget->replot();
-    ui->widget->graph(11)->addData(Y,X);
-    ui->widget->replot();//3
-    //1 x=0 y=5 e=-7  x=1 y=5 e=-1
-    //2 x=1 y=5 e=-1  x=2 y=5 e=5
-    //3 x=2 y=5 e=5   x=3 y=4 e=3
-
-    QThread::sleep(delay);
-    while(X<Y)
-    {
-       if(e>=0){
-          e+= 4*(X-Y)+10;
-          X++;
-          Y--;
-       }
-       else{
-         e+=4*X+6;
-         X++;
-       }
-       ui->widget->graph(1)->addData(Y,-X);
-
-       ui->widget->graph(5)->addData(X,-Y);
-
-       ui->widget->graph(6)->addData(-Y,-X);
-
-       ui->widget->graph(7)->addData(-X,-Y);
-
-       ui->widget->graph(8)->addData(-Y,X);
-
-       ui->widget->graph(9)->addData(-X,Y);
-
-       ui->widget->graph(10)->addData(X,Y);
-
-       ui->widget->graph(11)->addData(Y,X);
-       ui->widget->replot();
-       QThread::sleep(delay);
-    }
+    delay = str.toInt();
+    int x = -r, y = 0, err = 2-2*r;
+while (x < 0)
+{
+    r = err;
+    if (r <= y)
+        err += ++y*2+1;
+    if (r > x || err > y)
+        err += ++x*2+1;
+        ui->label_17->setNum(x);
+        ui->label_19->setNum(y);
+        ui->widget->graph(3)->addData(xm+x, ym-y);
+        ui->widget->replot();
+        ui->widget->graph(4)->addData(xm+y, ym-x);
+        ui->widget->replot();
+        ui->widget->graph(5)->addData(xm+y, ym+x);
+        ui->widget->replot();
+        ui->widget->graph(6)->addData(xm+x, ym+y);
+        ui->widget->replot();
+        ui->widget->graph(7)->addData(xm-x, ym-y);
+        ui->widget->replot();
+        ui->widget->graph(8)->addData(xm-y, ym-x);
+        ui->widget->replot();
+        ui->widget->graph(9)->addData(xm-y, ym+x);
+        ui->widget->replot();
+        ui->widget->graph(10)->addData(xm-x, ym+y);
+        ui->widget->replot();
+        QThread::sleep(delay);
+}
+        ui->label_17->setText("");
+        ui->label_19->setText("");
 }
 
 void MainWindow::on_pushButton_5_clicked()
@@ -377,6 +294,13 @@ ui->widget->replot();
 void MainWindow::on_pushButton_9_clicked()
 {
 ui->widget->graph(3)->data().data()->clear();
+ui->widget->graph(4)->data().data()->clear();
+ui->widget->graph(5)->data().data()->clear();
+ui->widget->graph(6)->data().data()->clear();
+ui->widget->graph(7)->data().data()->clear();
+ui->widget->graph(8)->data().data()->clear();
+ui->widget->graph(9)->data().data()->clear();
+ui->widget->graph(10)->data().data()->clear();
 ui->widget->replot();
 }
 

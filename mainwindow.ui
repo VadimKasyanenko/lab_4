@@ -640,7 +640,7 @@ Bresenham algorithm (Circle)</string>
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>190</y>
+      <y>220</y>
       <width>140</width>
       <height>40</height>
      </rect>
@@ -663,6 +663,32 @@ Bresenham algorithm (Circle)</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_11">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>230</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>3</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>190</y>
+      <width>140</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>y:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_12">
     <property name="geometry">
      <rect>
       <x>250</x>
