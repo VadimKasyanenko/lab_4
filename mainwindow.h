@@ -14,7 +14,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     QColor Sequential = Qt::black,Bresenham = Qt::black,DDA = Qt::black,Bresenham_Circle = Qt::black,Castle_Pitway = Qt::black;
-private slots:
+public slots:
     void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
@@ -46,6 +46,8 @@ private slots:
     void on_pushButton_15_clicked();
 
     void on_pushButton_16_clicked();
+
+    void on_pushButton_17_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->widget->addGraph();
     ui->widget->addGraph();
     ui->widget->addGraph();
+    ui->widget->addGraph();
+    ui->widget->addGraph();
     ui->widget->xAxis->setLabel("x");
     ui->widget->yAxis->setLabel("y");
     ui->widget->setInteraction(QCP::iRangeDrag,true);
@@ -133,7 +135,7 @@ void MainWindow::on_pushButton_2_clicked()
     }
     int D=2*Dy-Dx;
     int y=y_beg;
-    for(int x=x_beg;x<x_end;x++)
+    for(int x=x_beg;x<=x_end;x++)
     {
         ui->label_17->setNum(x);
         ui->label_19->setNum(y);
@@ -237,9 +239,10 @@ while (x < 0)
         ui->label_19->setText("");
 }
 
+
 void MainWindow::on_pushButton_5_clicked()
 {
-    int x_beg,x_end,y_beg,y_end;
+    int x_beg,x_end,y_beg,y_end,delay;
     QString str;
     str = ui->lineEdit_8->text();
     x_beg = str.toInt();
@@ -249,14 +252,36 @@ void MainWindow::on_pushButton_5_clicked()
     y_beg = str.toInt();
     str = ui->lineEdit_6->text();
     y_end = str.toInt();
+    str = ui->lineEdit->text();
+    delay = str.toInt();
+
+    if(abs(y_end-y_beg) > abs(x_end-x_beg))
+    {
+       std::swap(x_beg,y_beg);
+       std::swap(x_end,y_end);
+    }
+    if (x_beg > x_end)
+    {
+        std::swap(x_beg,x_end);
+        std::swap(y_beg,y_end);
+    }
+    int x_move=0,y_move=0;
+    if (x_beg!=0)
+    {
+        x_move=x_beg;
+    }
+    if (y_beg!=0)
+    {
+        y_move=y_beg;
+    }
     double x,y;
-    x=x_end-y_end;
-    y=y_end;
+    x=x_end-y_end-x_move+y_move;
+    y=y_end-y_move;
     QString m1="s",m2="d",tmp;
     while(x!=y)
     {
        if(x>y){
-           x+=y;
+           x-=y;
            tmp = m2;
            std::reverse(tmp.begin(), tmp.end());
            m2 = m1 + tmp;
@@ -271,6 +296,35 @@ void MainWindow::on_pushButton_5_clicked()
     std::reverse(m1.begin(), m1.end());
     tmp = m2 +m1;
     ui->label_20->setText(tmp);
+    ui->label_17->setNum(x_beg);
+    ui->label_19->setNum(y_beg);
+    ui->widget->graph(11)->addData(x_beg,y_beg);
+    ui->widget->replot();
+    QThread::sleep(delay);
+    for(int i=0;i<tmp.size();i++)
+    {
+        if(tmp[i]=='s')
+        {
+            x_beg ++;
+            ui->label_17->setNum(x_beg);
+            ui->label_19->setNum(y_beg);
+            ui->widget->graph(11)->addData(x_beg,y_beg);
+            ui->widget->replot();
+            QThread::sleep(delay);
+        }
+        else
+        {
+            x_beg ++;
+            y_beg ++;
+            ui->label_17->setNum(x_beg);
+            ui->label_19->setNum(y_beg);
+            ui->widget->graph(11)->addData(x_beg,y_beg);
+            ui->widget->replot();
+            QThread::sleep(delay);
+        }
+    }
+    ui->label_17->setText("");
+    ui->label_19->setText("");
 }
 
 void MainWindow::on_pushButton_6_clicked()
@@ -306,8 +360,9 @@ ui->widget->replot();
 
 void MainWindow::on_pushButton_10_clicked()
 {
-ui->widget->graph(4)->data().data()->clear();
+ui->widget->graph(11)->data().data()->clear();
 ui->widget->replot();
+ui->label_20->setText(" ");
 }
 
 void MainWindow::on_pushButton_11_clicked()
@@ -371,3 +426,11 @@ void MainWindow::on_pushButton_16_clicked()
     ui->widget->yAxis->setRange(x,x2);
     ui->widget->replot();
 }
+
+void MainWindow::on_pushButton_17_clicked()
+{
+    QMessageBox::information(this,"Methods' features","This method is interseting not for it's efficiency, but for it's algorithm, so there are some features \n \n"
+                                                      "It doesn't work with negative numbers \n \n"
+                                                      "There are only two operations - increase x or increase both x and y, so your function should lay in first quarter and be increasing");
+}
+
