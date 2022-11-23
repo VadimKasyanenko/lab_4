@@ -398,7 +398,8 @@ void MainWindow::on_pushButton_14_clicked()
       QPen pen;
       pen.setWidth(1);
       pen.setColor(Bresenham_Circle);
-      ui->widget->graph(3)->setPen(pen);
+      for(int i=3;i<=10;i++)
+      ui->widget->graph(i)->setPen(pen);
 }
 
 void MainWindow::on_pushButton_15_clicked()
@@ -407,7 +408,7 @@ void MainWindow::on_pushButton_15_clicked()
       QPen pen;
       pen.setWidth(1);
       pen.setColor(Castle_Pitway);
-      ui->widget->graph(4)->setPen(pen);
+      ui->widget->graph(11)->setPen(pen);
 }
 
 void MainWindow::on_pushButton_16_clicked()
@@ -434,3 +435,106 @@ void MainWindow::on_pushButton_17_clicked()
                                                       "There are only two operations - increase x or increase both x and y, so your function should lay in first quarter and be increasing");
 }
 
+void MainWindow::on_pushButton_18_clicked()
+{
+    QGraphicsView * view = new QGraphicsView();
+    QGraphicsScene * scene = new QGraphicsScene();
+    QImage image = QImage(800,600,QImage::Format_RGB32);
+    QColor color;
+    for (int y=0;y<600;y++)
+    {
+        for (int x=0;x<800;x++)
+        {
+            color.setRgb(255,255,255);
+
+          image.setPixelColor(x,y,color);
+        }
+    }
+    QPainter painter(&image);
+    painter.setRenderHint (QPainter :: Antialiasing, true);
+    int pointx = 40, pointy = 580;
+    int width = 780-pointx, height = 560;
+    painter.drawRect (5,5,800-10,600-10);
+    painter.drawLine (pointx, pointy, width + pointx, pointy);
+    painter.drawLine (pointx, pointy-height, pointx, pointy);
+    QPen penDegree;
+    penDegree.setColor(Qt::black);
+    penDegree.setWidth(2);
+    painter.setPen(penDegree);
+    QString str;
+    str = ui->lineEdit_2->text();
+    int x_axis = str.toInt();
+    str = ui->lineEdit_4->text();
+    int y_axis = str.toInt();
+    double kx = (double) width / x_axis; // коэффициент оси X
+    double ky = (double) height / y_axis; // Y масштабный коэффициент
+    for (int i = 0; i <=x_axis; i ++)
+    {
+    painter.drawLine(pointx+(i+1)*kx,pointy,pointx+(i+1)*kx,pointy+4);
+    painter.drawText(pointx+(i+1)*kx,
+    pointy+10,QString::number(i+1));
+    }
+    for(int i=0;i<y_axis;i++)
+    {
+    painter.drawLine(pointx,pointy-(i+1)*ky,
+    pointx-4,pointy-(i+1)*ky);
+    painter.drawText(pointx-20,pointy-(i+1)*ky,
+    QString::number(i+1));
+}
+     float x1,y1,x2,y2;
+     str = ui->lineEdit_8->text();
+     x1 = pointx+str.toInt()*kx;
+     str = ui->lineEdit_7->text();
+     x2 = pointx+str.toInt()*kx;
+     str = ui->lineEdit_9->text();
+     y1 = pointy-str.toInt()*ky;
+     str = ui->lineEdit_6->text();
+     y2 = pointy-str.toInt()*ky;
+     str = ui->lineEdit->text();
+    if (x2 < x1)
+    {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+    }
+    int dx= x2 - x1;
+    int dy= y2 - y1;
+    float gradient= (float)dy / dx;
+
+    // обработать начальную точку
+    int xend= x1;
+    int yend= y1 + gradient * (xend - x1);
+    float xgapg= 1 -((x1 + 0.5)-(int)(x1+0.5));
+    float xpxl1= xend;
+    float ypxl1= (int)(yend);
+    color.setRgb( (1 - (yend-(int)yend) * xgapg), (1 - (yend-(int)yend) * xgapg),(1 - (yend-(int)yend) * xgapg));
+    image.setPixelColor(xpxl1, ypxl1,color);
+    color.setRgb( (yend-(int)yend) * xgapg, (yend-(int)yend) * xgapg,(yend-(int)yend) * xgapg);
+    image.setPixelColor(xpxl1, ypxl1+1,color);
+    float intery= yend + gradient;
+
+    // обработать конечную точку
+    xend = (int)x2;
+    yend = y2 + gradient * (xend - x2);
+    xgapg = ((x2 + 0.5)-(int)(x2+0.5));
+    float xpxl2= xend;
+    float ypxl2= (int)yend;
+    color.setRgb( (1 - (yend-(int)yend) * xgapg), (1 - (yend-(int)yend) * xgapg),(1 - (yend-(int)yend) * xgapg));
+    image.setPixelColor(xpxl2, ypxl2,color);
+    color.setRgb( (yend-(int)yend) * xgapg, (yend-(int)yend) * xgapg,(yend-(int)yend) * xgapg);
+    image.setPixelColor(xpxl2, ypxl2+1,color);
+
+
+    // основной цикл
+    for (int x =xpxl1 + 1 ; x<= xpxl2 - 1 ;x++)
+    {
+        color.setRgb( (1 - (intery-(int)intery) * xgapg), (1 - (intery-(int)intery) * xgapg),(1 - (intery-(int)intery) * xgapg));
+        image.setPixelColor(x, (int)intery,color);
+        color.setRgb( (intery-(int)intery) * xgapg, (intery-(int)intery) * xgapg,(intery-(int)intery) * xgapg);
+        image.setPixelColor(x, (int)intery+1,color);
+        intery = intery + gradient;
+    }
+
+    scene->addPixmap(QPixmap::fromImage(image));
+    view->setScene(scene);
+    view->show();
+}
